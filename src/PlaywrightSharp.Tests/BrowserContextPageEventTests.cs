@@ -212,7 +212,7 @@ namespace PlaywrightSharp.Tests
             Assert.Null(await popupEventTask.Result.Page.OpenerAsync());
         }
 
-        [PlaywrightTest("browsercontext-page-event.spec.ts", "should report when a new page is created and closed")]
+        [PlaywrightTest("browsercontext-page-event.spec.ts", "should work with Ctrl-clicking")]
         [SkipBrowserAndPlatformFact(skipWebkit: true, skipFirefox: true)]
         public async Task ShouldWorkWithCtrlClicking()
         {
