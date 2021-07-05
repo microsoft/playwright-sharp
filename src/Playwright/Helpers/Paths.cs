@@ -37,7 +37,14 @@ namespace Microsoft.Playwright.Helpers
             if (!assemblyDirectory.Exists || !File.Exists(Path.Combine(assemblyDirectory.FullName, "Microsoft.Playwright.dll")))
             {
                 var assemblyLocation = typeof(Playwright).Assembly.Location;
-                assemblyDirectory = new FileInfo(assemblyLocation).Directory;
+                if (!string.IsNullOrEmpty(assemblyLocation))
+                {
+                    // For clarification, we only overwrite the directory if the assembly location is
+                    // not empty, like when running from a single file packaged application. In that
+                    // context, getting the dll is unsupported, but also not needed. The rest of the
+                    // functionalities will work, and we can leave it at that.
+                    assemblyDirectory = new FileInfo(assemblyLocation).Directory;
+                }
             }
 
             string executableFile = GetPath(assemblyDirectory.FullName);
