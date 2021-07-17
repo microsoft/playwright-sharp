@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Playwright.Transport;
 using Microsoft.Playwright.Transport.Channels;
@@ -117,6 +118,25 @@ namespace Microsoft.Playwright.Core
                 ignoreDefaultArgs: options.IgnoreDefaultArgs,
                 ignoreAllDefaultArgs: options.IgnoreAllDefaultArgs,
                 baseUrl: options.BaseURL).ConfigureAwait(false)).Object;
+        }
+
+        public async Task<IBrowser> ConnectAsync(string wsEndpoint, BrowserTypeConnectOptions options = null)
+        {
+            options ??= new BrowserTypeConnectOptions();
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            var transport = new WebSocketTransport(wsEndpoint, options);
+#pragma warning restore CA2000
+            var connection = new Connection(transport);
+            var playwright = await connection.WaitForObjectWithKnownNameAsync<PlaywrightImpl>("Playwright").ConfigureAwait(false);
+            playwright.Connection = connection;
+
+            if (playwright.PreLaunchedBrowser == null)
+            {
+                transport.Close("Disconnected");
+                throw new PlaywrightException("Malformed endpoint. Did you use launchServer method?");
+            }
+
+            return playwright.PreLaunchedBrowser;
         }
     }
 }
